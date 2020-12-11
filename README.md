@@ -1,7 +1,7 @@
 # Binary matrices multiplication example
 
 Provides example of multiplication of randomly generated binary matrices
-with predefined size sequentially and in parallel, prints logs to console.
+with predefined size sequentially and in parallel, prints execution time to console.
 
 ### Requirements: 
 - Java 8
@@ -16,15 +16,12 @@ with predefined size sequentially and in parallel, prints logs to console.
 - `ua.ikushnirenko.binary_matrices.Main` - entry point.
 
 ### How to build: 
-Run tests:
-> mvn clean test
-
 Build package:
 > mvn clean package
 
 ### Parameters
 Jar accepts one CLI argument - size of square matrix. _Default value: 2000_.
-Also, this number is be used for creating ThreadPoolExecutor as corePoolSize.
+Also, this number is used for creating ThreadPoolExecutor as corePoolSize.
 
 ### How to run
 > cd target
