@@ -16,7 +16,6 @@ with predefined size sequentially and in parallel, prints execution time to cons
 - `ua.ikushnirenko.binary_matrices.Main` - entry point.
 
 ### How to build: 
-Build package:
 > mvn clean package
 
 ### Parameters
@@ -25,4 +24,5 @@ Also, this number is used for creating ThreadPoolExecutor as corePoolSize.
 
 ### How to run
 > cd target
+>
 > java -jar binary-matrices-0.0.1-0.jar {square_matrix_size}
