@@ -4,10 +4,8 @@ import ua.ikushnirenko.binary_matrices.model.BinaryMatrix;
 import ua.ikushnirenko.binary_matrices.service.task.EvaluateAndSetMultiplicationResultValueTask;
 import ua.ikushnirenko.binary_matrices.service.task.TaskProvider;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
 
 public class ParallelMatrixServiceImpl extends AbstractMatrixService {
 
@@ -24,33 +22,27 @@ public class ParallelMatrixServiceImpl extends AbstractMatrixService {
     protected BinaryMatrix multiply(BinaryMatrix a, BinaryMatrix b) {
         System.out.println("Processing parallel matrix multiplication...");
 
-        BinaryMatrix result = new BinaryMatrix(a.rows(), b.cols());
+        CountDownLatch countDownLatch = new CountDownLatch(a.rows() * b.cols());
 
-        List<Future<?>> parallelTasks = new ArrayList<>();
+        BinaryMatrix result = new BinaryMatrix(a.rows(), b.cols());
         for (int i = 0; i < result.rows(); i++) {
             for (int j = 0; j < result.cols(); j++) {
-                parallelTasks.add(
-                        executorService.submit(
-                                taskProvider.get(new EvaluateAndSetMultiplicationResultValueTask(i, j, a, b, result))
-                        )
+                executorService.submit(
+                        taskProvider.get(new EvaluateAndSetMultiplicationResultValueTask(i, j, a, b, result, countDownLatch))
                 );
             }
         }
 
-        ensureAllTasksCompleted(parallelTasks);
+        awaitAllTasksComplete(countDownLatch);
 
         return result;
     }
 
-    /**
-     * Iterates over provided list of Future tasks until all of them are done.
-     */
-    private void ensureAllTasksCompleted(List<Future<?>> parallelTasks) {
-        boolean isIncompleteTaskPresent = true;
-        while (isIncompleteTaskPresent) {
-            for (Future<?> f : parallelTasks) {
-                isIncompleteTaskPresent = !f.isDone();
-            }
+    private void awaitAllTasksComplete(CountDownLatch countDownLatch) {
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Can't await when all computations finished", e);
         }
     }
 }

@@ -2,6 +2,9 @@ package ua.ikushnirenko.binary_matrices.service.task;
 
 import ua.ikushnirenko.binary_matrices.model.BinaryMatrix;
 
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+
 /**
  * Base unit of computation - evaluates 1 element at specified indexes for result matrix
  * using 'i' row from matrix 'a' and 'j' column at matrix 'b'.
@@ -16,18 +19,29 @@ public class EvaluateAndSetMultiplicationResultValueTask implements Task {
 
     private final BinaryMatrix result;
 
+    private final CountDownLatch countDownLatch;
+
     public EvaluateAndSetMultiplicationResultValueTask(int resultRowIdx,
                                                        int resultColIdx,
                                                        BinaryMatrix a,
                                                        BinaryMatrix b,
                                                        BinaryMatrix result) {
-        //todo: implement checks for input params
+        this(resultRowIdx, resultColIdx, a, b, result, null);
+    }
 
+    public EvaluateAndSetMultiplicationResultValueTask(int resultRowIdx,
+                                                       int resultColIdx,
+                                                       BinaryMatrix a,
+                                                       BinaryMatrix b,
+                                                       BinaryMatrix result,
+                                                       CountDownLatch countDownLatch) {
+        //todo: implement checks for input params
         this.resultRowIdx = resultRowIdx;
         this.resultColIdx = resultColIdx;
         this.a = a;
         this.b = b;
         this.result = result;
+        this.countDownLatch = countDownLatch;
     }
 
     @Override
@@ -44,5 +58,7 @@ public class EvaluateAndSetMultiplicationResultValueTask implements Task {
         }
 
         result.set(resultRowIdx, resultColIdx, c_);
+
+        Optional.ofNullable(countDownLatch).ifPresent(CountDownLatch::countDown);
     }
 }
